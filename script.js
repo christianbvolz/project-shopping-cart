@@ -90,8 +90,12 @@ const setListItem = (response) => {
 };
 
 const fetchList = async () => {
+  const section = document.querySelector('.container');
+  const Paragraph = createCustomElement('p', 'loading', 'loading...');
+  section.appendChild(Paragraph);
   const request = await fetch('https://api.mercadolibre.com/sites/MLB/search?q=computador');
   const response = await request.json();
+  section.removeChild(Paragraph);
   setListItem(response);
 };
 
