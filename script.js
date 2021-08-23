@@ -1,4 +1,5 @@
 const cartClass = '.cart__items';
+const btnEmptyCart = document.querySelector('.empty-cart');
 
 function createProductImageElement(imageSource) {
   const img = document.createElement('img');
@@ -110,3 +111,12 @@ const cartSaved = () => {
 };
 
 window.onload = () => fetchList().then(() => cartSaved());
+btnEmptyCart.addEventListener('click', () => {
+  const cartOl = document.querySelector(cartClass);
+  const cartOlChildren = document.querySelector(cartClass).children;
+  Array.from(cartOlChildren).forEach((element) => {
+    cartOl.removeChild(element);
+  });
+  updateLocalStorage();
+  totalPrice();
+});
