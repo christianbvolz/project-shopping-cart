@@ -26,9 +26,9 @@ function createProductItemElement({ sku, name, image }) {
   return section;
 }
 
-function getSkuFromProductItem(item) {
-  return item.querySelector('span.item__sku').innerText;
-}
+// function getSkuFromProductItem(item) {
+//   return item.querySelector('span.item__sku').innerText;
+// }
 
 const updateLocalStorage = () => {
   const cart = document.querySelector(cartClass).children;
@@ -39,11 +39,29 @@ const updateLocalStorage = () => {
   localStorage.setItem('cart', JSON.stringify(cartInfos));
 };
 
+const totalPrice = () => {
+  const cartSection = document.querySelector('.cart');
+  const cart = JSON.parse(localStorage.getItem('cart'));
+  const total = cart.reduce((acc, item) => {
+    let itemPrice = item.split('$');
+    itemPrice = parseFloat(itemPrice[itemPrice.length - 1]);
+    return acc + itemPrice;
+  }, 0);
+  if (document.querySelector('.total-price')) {
+    const spanTotalPrice = document.querySelector('.total-price');
+    spanTotalPrice.innerText = total;
+  } else {
+    const spanTotalPrice = createCustomElement('span', 'total-price', total);
+    cartSection.appendChild(spanTotalPrice);
+  }
+};
+
 function cartItemClickListener(event) {
   const cartOl = document.querySelector(cartClass);
   const cartLi = event.target;
   cartOl.removeChild(cartLi);
   updateLocalStorage();
+  totalPrice();
 }
 
 function createCartItemElement({ sku, name, salePrice }) {
@@ -65,6 +83,7 @@ const setListItem = (response) => {
       const cartLi = createCartItemElement({ sku: id, name: title, salePrice: price });
       cartOl.appendChild(cartLi);
       updateLocalStorage();
+      totalPrice();
     });
 });
 };
@@ -78,13 +97,16 @@ const fetchList = async () => {
 const cartSaved = () => {
   const cart = JSON.parse(localStorage.getItem('cart'));
   const cartOl = document.querySelector(cartClass);
-  for (let index = 0; index < cart.length; index += 1) {
-    const li = document.createElement('li');
-    li.className = 'cart__item';
-    li.innerText = cart[index];
-    li.addEventListener('click', cartItemClickListener);
-    cartOl.appendChild(li);
+  if (cart) {
+    for (let index = 0; index < cart.length; index += 1) {
+      const li = document.createElement('li');
+      li.className = 'cart__item';
+      li.innerText = cart[index];
+      li.addEventListener('click', cartItemClickListener);
+      cartOl.appendChild(li);
+    }
   }
+  totalPrice();
 };
 
 window.onload = () => fetchList().then(() => cartSaved());
